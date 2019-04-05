@@ -1,0 +1,78 @@
+﻿@model BigSchool.ViewModels.CoursesViewModel
+
+@{
+    ViewBag.Title = "Attending";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Attending</h2>
+
+<div class="row" style="margin-top: 10px;">
+    <ul class="course">
+        @foreach (var course in Model.UpcommingCourses)
+        {
+            <li>
+                <div class="date">
+                    <div class="day">
+                        @course.DateTime.ToString("dd")
+                    </div>
+                    <div class="month">
+                        @course.DateTime.ToString("MM")
+                    </div>
+                </div>
+                <div class="details">
+                    <span class="lecturer">
+                        @course.Lecturer.Name
+                    </span>
+                    @if (Model.ShowAction)
+                    {
+                        <button class="btn btn-default btn-sm js-toggle-follow" date-user-id="@course.LecturerId">Follow</button>
+                    }
+                    <br />
+                    <span class="category">
+                        @course.Category.Name
+                    </span>
+                    @if (Model.ShowAction)
+                    {
+                        <button date-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendace">Going ?</button>
+                    }
+
+                </div>
+
+            </li>
+        }
+    </ul>
+</div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $(".js-toggle-attendace").click(function (e) {
+                var button = $(e.target);
+                $.post("/api/attendances", { courseId: button.attr("date-course-id") })
+                .done(function () {
+                    button
+                        .removeClass("btn-default")
+                        .addClass("btn-info")
+                        .text("Going");
+
+                })
+                .fail(function () {
+                    alert("Something failed");
+                });
+            });
+
+            $(".js-toggle-follow").click(function (e) {
+                var button = $(e.target);
+                $.post("/api/followings", { courseId: button.attr("date-user-id") })
+                .done(function () {
+                    button.text("Following");
+                })
+                .fail(function () {
+                    alert("Something failed");
+                });
+            });
+        });
+    </script>
+}
+

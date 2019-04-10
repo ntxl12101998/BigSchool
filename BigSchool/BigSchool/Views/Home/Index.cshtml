@@ -22,7 +22,7 @@
                     </span>
                     @if (Model.ShowAction)
                     {
-                        <button class="btn btn-default btn-sm js-toggle-follow" date-user-id="@course.LecturerId">Follow</button>
+                        <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Follow</button>
                     }
                     <br />
                     <span class="category">
@@ -30,7 +30,7 @@
                     </span>
                     @if (Model.ShowAction)
                     {
-                        <button date-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendace">Going ?</button>
+                        <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going ?</button>
                     }
 
                 </div>
@@ -39,15 +39,16 @@
         }
     </ul>
 </div>
-@*@section scripts
+@section scripts
 {
     <script>
         $(document).ready(function () {
-            CoursesController.init();
-            $(".js-toggle-attendace").click(function (e) {
+            //CoursesController.init();
+
+            $(".js-toggle-attendance").click(function (e) {
                 var button = $(e.target);
                 if (button.hasClass("btn-default")) {
-                    $.post("/api/attendaces", { courseId: button.attr("date-course-id") })
+                    $.post("/api/attendances", { courseId: button.attr("data-course-id") })
                         .done(function () {
                             button
                                 .removeClass("btn-default")
@@ -61,7 +62,7 @@
                 }
                 else {
                     $.ajax({
-                        url: "/api/attendaces/" + button.attr("data-course-id"),
+                        url: "/api/attendances/" + button.attr("data-course-id"),
                         method: "DELETE"
                     })
                         .done(function () {
@@ -80,7 +81,7 @@
             $(".js-toggle-follow").click(function (e) {
                 var button = $(e.target);
                 if (button.hasClass("btn-default")) {
-                    $.post("/api/followings", { followeeId: button.attr("date-user-id") })
+                    $.post("/api/followings", { followeeId: button.attr("data-user-id") })
                     .done(function () {
                         button
                             .removeClass("btn-default")
@@ -93,7 +94,7 @@
                 }
                 else {
                     $.ajax({
-                        url: "/api/followings/" + button.attr("date-user-id"),
+                        url: "/api/followings/" + button.attr("data-user-id"),
                         method: "DELETE"
                     })
                         .done(function () {
@@ -109,4 +110,4 @@
             });
         });
     </script>
-}*@
+}

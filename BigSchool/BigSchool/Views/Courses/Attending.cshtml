@@ -1,8 +1,13 @@
-﻿@model BigSchool.ViewModels.CoursesViewModel
+﻿@using BigSchool.Models;
+@using Microsoft.AspNet.Identity;
+@model BigSchool.ViewModels.CoursesViewModel
 
 @{
     ViewBag.Title = "Attending";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var userid = User.Identity.GetUserId();
+    ApplicationDbContext _dbContext = new ApplicationDbContext();
 }
 
 <h2>Attending</h2>
@@ -11,7 +16,7 @@
     <ul class="course">
         @foreach (var course in Model.UpcommingCourses)
         {
-            <li>
+            <li style="margin-bottom:50px;">
                 <div class="date">
                     <div class="day">
                         @course.DateTime.ToString("dd")
@@ -26,19 +31,25 @@
                     </span>
                     @if (Model.ShowAction)
                     {
-                        <button class="btn btn-default btn-sm js-toggle-follow" date-user-id="@course.LecturerId">Follow</button>
+                        bool isFollowing = _dbContext.Followings.Any(f => f.FollowerId == userid && f.FolloweeId == course.LecturerId);
+                        if (!isFollowing)
+                        {
+                            <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Follow</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-info btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Following</button>
+                        }
                     }
                     <br />
                     <span class="category">
                         @course.Category.Name
                     </span>
-                    @if (Model.ShowAction)
-                    {
-                        <button date-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendace">Going ?</button>
-                    }
 
                 </div>
-
+                <div class="action" style="margin-top: 10px;">
+                    <a href="#" class="js-cancel-course" data-course-id="@course.Id">Cancel</a>
+                </div>
             </li>
         }
     </ul>
@@ -47,30 +58,56 @@
 {
     <script>
         $(document).ready(function () {
-            $(".js-toggle-attendace").click(function (e) {
-                var button = $(e.target);
-                $.post("/api/attendances", { courseId: button.attr("date-course-id") })
-                .done(function () {
-                    button
-                        .removeClass("btn-default")
-                        .addClass("btn-info")
-                        .text("Going");
-
-                })
-                .fail(function () {
-                    alert("Something failed");
-                });
-            });
 
             $(".js-toggle-follow").click(function (e) {
                 var button = $(e.target);
-                $.post("/api/followings", { courseId: button.attr("date-user-id") })
-                .done(function () {
-                    button.text("Following");
-                })
-                .fail(function () {
-                    alert("Something failed");
-                });
+                if (button.hasClass("btn-default")) {
+                    $.post("/api/followings", { followeeId: button.attr("data-user-id") })
+                        .done(function () {
+                            button
+                                .removeClass("btn-default")
+                                .addClass("btn-info")
+                                .text("Following");
+                        })
+                        .fail(function () {
+                            alert("Something failed");
+                        });
+                }
+                else {
+                    $.ajax({
+                        url: "/api/followings/" + button.attr("data-user-id"),
+                        method: "DELETE"
+                    })
+                        .done(function () {
+                            button
+                                .removeClass("btn-info")
+                                .addClass("btn-default")
+                                .text("Follow");
+                        })
+                        .fail(function () {
+                            alert("Something failed");
+                        })
+                }
+            });
+
+            $(".js-cancel-course").click(function (e) {
+                e.preventDefault();
+                var link = $(e.target);
+                bootbox.confirm("Are you sure to ungoing ?",
+                    function () {
+                        $.ajax({
+                            url: "/api/attendances/" + link.attr("data-course-id"),
+                            method: "DELETE"
+                        })
+                            .done(function () {
+                                link.parents("li").fadeOut(function () {
+                                    $(this).remove();
+                                });
+                            })
+                            .fail(function () {
+                                alert("Something failed!");
+                            });
+                    });
             });
         });
     </script>

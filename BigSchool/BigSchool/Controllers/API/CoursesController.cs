@@ -24,7 +24,7 @@ namespace BigSchool.Controllers.API
             var userId = User.Identity.GetUserId();
             var course = _dbContext.Courses.Single(c => c.Id == id && c.LecturerId == userId);
 
-            if(course.IsCanceled)
+            if (course.IsCanceled)
             {
                 return NotFound();
             }
@@ -34,5 +34,23 @@ namespace BigSchool.Controllers.API
 
             return Ok();
         }
+
+        //[HttpPost]
+        //public IHttpActionResult Uncancel(int id)
+        //{
+        //    var userId = User.Identity.GetUserId();
+        //    var course = _dbContext.Courses.Single(c => c.Id == id && c.LecturerId == userId);
+
+        //    if (course.IsCanceled)
+        //    {
+        //        return NotFound();
+        //    }
+        //    course.IsCanceled = false;
+        //    //_dbContext.Courses.Remove(course);
+        //    _dbContext.SaveChanges();
+
+        //    return Ok();
+        //}
+
     }
 }

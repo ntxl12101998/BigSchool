@@ -11,20 +11,46 @@
     <ul class="course">
         @foreach (var follow in Model)
         {
-            <li>              
+            <li>
                 <div>
                     <span>
                         @follow.Name
-                    </span>  
+                    </span>
                     <br />
                     <span>
                         @follow.UserName
-                    </span>                    
+                    </span>
                 </div>
-                <div class="action">                    
-                    <a href="#" class="js-cancel-course" data-course-id="@follow.Id">Cancel</a>
+                <div class="action">
+                    <a href="#" class="js-cancel-follow" data-user-id="@follow.Id">Cancel</a>
                 </div>
             </li>
         }
-    </ul>    
+    </ul>
 </div>
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $(".js-cancel-follow").click(function (e) {
+                e.preventDefault();
+                var link = $(e.target);
+                bootbox.confirm("Are you sure to unfollow ?",
+                    function () {
+                        $.ajax({
+                            url: "/api/followings/" + link.attr("data-user-id"),
+                            method: "DELETE"
+                        })
+                            .done(function () {
+                                link.parents("li").fadeOut(function () {
+                                    $(this).remove();
+                                });
+                            })
+                            .fail(function () {
+                                alert("Something failed!");
+                            });
+                    });
+            });
+        });
+    </script>
+}

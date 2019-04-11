@@ -31,7 +31,15 @@
                 </div>
                 <div class="action" style="margin-left:10px;">
                     <a href="@Url.Action("Edit","Courses", new {id = course.Id })">Edit</a> |
+                    @*@if (course.IsCanceled == false)
+                        {*@
                     <a href="#" class="js-cancel-course" data-course-id="@course.Id">Cancel</a>
+                    @*}
+                        else
+                        {
+                            <a href="#" class="js-uncancel-course" data-course-id="@course.Id">Uncancel</a>
+                        }*@
+
                 </div>
             </li>
         }
@@ -60,6 +68,22 @@
                             });
                     });
             });
+
+            //$(".js-uncancel-course").click(function (e) {
+            //    e.preventDefault();
+            //    var link = $(e.target);
+            //    var id = link.attr("data-course-id");
+            //    bootbox.confirm("Are you sure to uncancel ?",
+            //        function () {
+            //            $.post("/API/Courses/Uncancel", { id : id })
+            //                .done(function () {
+            //                    link.text("Cancel");
+            //                })
+            //                .fail(function () {
+            //                    alert("Something failed!");
+            //                });
+            //        });
+            //});
         });
     </script>
 }

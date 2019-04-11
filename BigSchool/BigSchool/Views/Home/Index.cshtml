@@ -1,6 +1,11 @@
-﻿@model BigSchool.ViewModels.CoursesViewModel
+﻿@using BigSchool.Models;
+@using Microsoft.AspNet.Identity;
+@model BigSchool.ViewModels.CoursesViewModel
 @{
     ViewBag.Title = "Home Page";
+
+    var userid = User.Identity.GetUserId();
+    ApplicationDbContext _dbContext = new ApplicationDbContext();
 }
 
 <div class="row" style="margin-top: 10px;">
@@ -22,7 +27,16 @@
                     </span>
                     @if (Model.ShowAction)
                     {
-                        <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Follow</button>
+                        bool isFollowing = _dbContext.Followings.Any(f => f.FollowerId == userid && f.FolloweeId == course.LecturerId);
+                        if (!isFollowing)
+                        {
+                            <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Follow</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-info btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Following</button>
+                        }
+
                     }
                     <br />
                     <span class="category">
@@ -30,7 +44,15 @@
                     </span>
                     @if (Model.ShowAction)
                     {
-                        <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going ?</button>
+                        bool isGoing = _dbContext.Attendances.Any(a => a.CourseId == course.Id && a.AttendeeId == userid);
+                        if (!isGoing)
+                        {
+                            <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going ?</button>
+                        }
+                        else
+                        {
+                            <button data-course-id="@course.Id" class="btn btn-info btn-sm js-toggle-attendance">Going</button>
+                        }
                     }
 
                 </div>
@@ -82,15 +104,15 @@
                 var button = $(e.target);
                 if (button.hasClass("btn-default")) {
                     $.post("/api/followings", { followeeId: button.attr("data-user-id") })
-                    .done(function () {
-                        button
-                            .removeClass("btn-default")
-                            .addClass("btn-info")
-                            .text("Following");
-                    })
-                    .fail(function () {
-                        alert("Something failed");
-                    });
+                        .done(function () {
+                            button
+                                .removeClass("btn-default")
+                                .addClass("btn-info")
+                                .text("Following");
+                        })
+                        .fail(function () {
+                            alert("Something failed");
+                        });
                 }
                 else {
                     $.ajax({
